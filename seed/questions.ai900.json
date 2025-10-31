@@ -1,0 +1,182 @@
+[
+  {
+    "Id": "S1",
+    "Stem": "Qual é o objetivo do Azure AI Services (Cognitive Services)?",
+    "Options": {
+      "A": "Hospedar VMs",
+      "B": "Fornecer APIs para percepção e linguagem",
+      "C": "Gerenciar identidades",
+      "D": "Orquestrar containers"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "AI-900: Fundamentos de IA no Azure"
+    ]
+  },
+  {
+    "Id": "S2",
+    "Stem": "Qual serviço oferece modelos de visão pré-treinados?",
+    "Options": {
+      "A": "Azure Machine Learning",
+      "B": "Azure AI Vision",
+      "C": "Azure OpenAI Embeddings",
+      "D": "Azure Monitor"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "AI-900: Visão computacional"
+    ]
+  },
+  {
+    "Id": "S3",
+    "Stem": "O que é aprendizado supervisionado?",
+    "Options": {
+      "A": "Aprendizado sem rótulos",
+      "B": "Modelo aprende com exemplos rotulados",
+      "C": "Treino totalmente autônomo",
+      "D": "Um tipo de RL"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AI-900: Conceitos de ML"
+    ]
+  },
+  {
+    "Id": "S4",
+    "Stem": "Qual serviço gerencia o ciclo de vida de modelos (train/track/deploy)?",
+    "Options": {
+      "A": "Azure AI Studio",
+      "B": "Azure Machine Learning",
+      "C": "Azure Functions",
+      "D": "Azure App Service"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AI-900: ML no Azure"
+    ]
+  },
+  {
+    "Id": "S5",
+    "Stem": "Em PNL, um caso de uso de classificação é:",
+    "Options": {
+      "A": "Reconhecimento de fala",
+      "B": "Análise de sentimento",
+      "C": "Síntese de fala",
+      "D": "Tradução neural"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "AI-900: PNL"
+    ]
+  },
+  {
+    "Id": "S6",
+    "Stem": "Qual prática melhora a responsabilidade em IA?",
+    "Options": {
+      "A": "Dados enviesados",
+      "B": "Monitorar métricas de equidade",
+      "C": "Omitir auditoria",
+      "D": "Treinar sem consentimento"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AI-900: IA responsável"
+    ]
+  },
+  {
+    "Id": "S7",
+    "Stem": "Qual recurso suporta chat com LLMs no Azure?",
+    "Options": {
+      "A": "Azure OpenAI Service",
+      "B": "Azure Arc",
+      "C": "Azure DNS",
+      "D": "Azure Front Door"
+    },
+    "CorrectOption": "A",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "AI-900: Geração de linguagem"
+    ]
+  },
+  {
+    "Id": "S8",
+    "Stem": "O que é overfitting?",
+    "Options": {
+      "A": "Modelo generaliza bem",
+      "B": "Modelo memoriza ruído do treino",
+      "C": "Poucos dados de treino",
+      "D": "Dados balanceados"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AI-900: Conceitos de ML"
+    ]
+  },
+  {
+    "Id": "S9",
+    "Stem": "Qual serviço cria pipelines de ML reproduzíveis?",
+    "Options": {
+      "A": "Azure Machine Learning",
+      "B": "Azure Policy",
+      "C": "Azure CDN",
+      "D": "Azure Repos"
+    },
+    "CorrectOption": "A",
+    "Difficulty": "hard",
+    "ObjectiveRefs": [
+      "AI-900: Operacionalização de ML"
+    ]
+  },
+  {
+    "Id": "S10",
+    "Stem": "Para análise de texto semântico com embeddings, use:",
+    "Options": {
+      "A": "Azure Search sem vetor",
+      "B": "Azure OpenAI Embeddings + AI Search",
+      "C": "Azure NetApp Files",
+      "D": "Azure Firewall"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AI-900: Pesquisa com IA"
+    ]
+  },
+  {
+    "Id": "S11",
+    "Stem": "Qual risco ético envolve deepfakes?",
+    "Options": {
+      "A": "Latência alta",
+      "B": "Desinformação e fraude",
+      "C": "Baixo throughput",
+      "D": "Escalabilidade limitada"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "hard",
+    "ObjectiveRefs": [
+      "AI-900: IA responsável"
+    ]
+  },
+  {
+    "Id": "S12",
+    "Stem": "O que é dataset de validação?",
+    "Options": {
+      "A": "Usado para treino final",
+      "B": "Usado para tunar hiperparâmetros",
+      "C": "Usado somente em produção",
+      "D": "Backup de dados"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AI-900: Avaliação de modelos"
+    ]
+  }
+]

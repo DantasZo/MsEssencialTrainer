@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "MsFundamentals.Trainer": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:6073;http://localhost:6074"
+    }
+  }
+}

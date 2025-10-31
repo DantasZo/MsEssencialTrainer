@@ -1,0 +1,67 @@
+[
+  {
+    "Id": "AZ900-Q1",
+    "Stem": "Qual serviço do Azure fornece armazenamento de objetos escalável?",
+    "Options": {
+      "A": "Azure Blob Storage",
+      "B": "Azure Files",
+      "C": "Azure Virtual Machines",
+      "D": "Azure SQL Database"
+    },
+    "CorrectOption": "A",
+    "Difficulty": "easy",
+    "ObjectiveRefs": ["AZ-900: Armazenamento"]
+  },
+  {
+    "Id": "AZ900-Q2",
+    "Stem": "Qual modelo de serviço de nuvem concede maior controle sobre SO e rede?",
+    "Options": {
+      "A": "PaaS",
+      "B": "IaaS",
+      "C": "SaaS",
+      "D": "FaaS"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": ["AZ-900: Modelos de serviço"]
+  },
+  {
+    "Id": "AZ900-Q3",
+    "Stem": "Qual recurso permite definir infraestrutura como código no Azure?",
+    "Options": {
+      "A": "ARM Templates",
+      "B": "Azure Monitor",
+      "C": "Azure Advisor",
+      "D": "Azure Policy"
+    },
+    "CorrectOption": "A",
+    "Difficulty": "medium",
+    "ObjectiveRefs": ["AZ-900: Governança"]
+  },
+  {
+    "Id": "AZ900-Q4",
+    "Stem": "Qual serviço gerencia identidades e acesso?",
+    "Options": {
+      "A": "Azure Firewall",
+      "B": "Azure Active Directory",
+      "C": "Azure Bastion",
+      "D": "Azure Key Vault"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "easy",
+    "ObjectiveRefs": ["AZ-900: Segurança"]
+  },
+  {
+    "Id": "AZ900-Q5",
+    "Stem": "Qual serviço permite execução de código sob demanda sem gerenciar servidores?",
+    "Options": {
+      "A": "Azure Functions",
+      "B": "Azure Virtual Machines",
+      "C": "Azure Container Instances",
+      "D": "Azure App Service"
+    },
+    "CorrectOption": "A",
+    "Difficulty": "easy",
+    "ObjectiveRefs": ["AZ-900: Computação"]
+  }
+]

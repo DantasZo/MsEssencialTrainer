@@ -1,0 +1,182 @@
+[
+  {
+    "Id": "S1",
+    "Stem": "O que é a computação em nuvem segundo a Microsoft?",
+    "Options": {
+      "A": "Execução local em datacenter privado",
+      "B": "Entrega de serviços de computação pela Internet",
+      "C": "Somente armazenamento de arquivos",
+      "D": "Apenas máquinas virtuais"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "AZ-900: Conceitos de nuvem"
+    ]
+  },
+  {
+    "Id": "S2",
+    "Stem": "Qual modelo de responsabilidade compartilha gestão do SO com o provedor?",
+    "Options": {
+      "A": "IaaS",
+      "B": "PaaS",
+      "C": "SaaS",
+      "D": "On-premises"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AZ-900: Modelos de serviço em nuvem"
+    ]
+  },
+  {
+    "Id": "S3",
+    "Stem": "Qual serviço do Azure fornece um repositório de objetos altamente durável?",
+    "Options": {
+      "A": "Azure Files",
+      "B": "Azure Blobs",
+      "C": "Azure Disks",
+      "D": "Azure Queues"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "AZ-900: Serviços principais do Azure"
+    ]
+  },
+  {
+    "Id": "S4",
+    "Stem": "Qual recurso ajuda a estimar custos antes da implantação?",
+    "Options": {
+      "A": "Azure Resource Graph",
+      "B": "Azure Advisor",
+      "C": "Calculadora de Preços do Azure",
+      "D": "Azure Monitor"
+    },
+    "CorrectOption": "C",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "AZ-900: Preços e suporte"
+    ]
+  },
+  {
+    "Id": "S5",
+    "Stem": "Região do Azure é definida como:",
+    "Options": {
+      "A": "Um único datacenter",
+      "B": "Conjunto de datacenters em uma área geográfica",
+      "C": "Espaço de nomes DNS",
+      "D": "Grupo de recursos"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "AZ-900: Arquitetura do Azure"
+    ]
+  },
+  {
+    "Id": "S6",
+    "Stem": "Qual serviço fornece gerenciamento de identidades e SSO?",
+    "Options": {
+      "A": "Azure Policy",
+      "B": "Azure AD (Entra ID)",
+      "C": "Azure Key Vault",
+      "D": "Azure RBAC"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AZ-900: Segurança, privacidade e conformidade"
+    ]
+  },
+  {
+    "Id": "S7",
+    "Stem": "O que é o Azure Resource Manager (ARM)?",
+    "Options": {
+      "A": "Camada de rede do Azure",
+      "B": "API de gerenciamento e implantação de recursos",
+      "C": "Banco de dados gerenciado",
+      "D": "Serviço de mensagens"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AZ-900: Governança e gerenciamento"
+    ]
+  },
+  {
+    "Id": "S8",
+    "Stem": "Qual opção reduz a latência para usuários globais?",
+    "Options": {
+      "A": "Zonas de disponibilidade",
+      "B": "VNET peering",
+      "C": "Content Delivery Network (CDN)",
+      "D": "VPN Site-to-Site"
+    },
+    "CorrectOption": "C",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AZ-900: Rede e desempenho"
+    ]
+  },
+  {
+    "Id": "S9",
+    "Stem": "Para alta disponibilidade dentro de uma região, use:",
+    "Options": {
+      "A": "Escalonamento manual",
+      "B": "Grupos de disponibilidade/zones",
+      "C": "Contas de armazenamento LRS",
+      "D": "Azure Policy"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AZ-900: Disponibilidade e resiliência"
+    ]
+  },
+  {
+    "Id": "S10",
+    "Stem": "Qual ferramenta recomenda otimizações de custo e desempenho?",
+    "Options": {
+      "A": "Azure Advisor",
+      "B": "Azure Monitor",
+      "C": "Azure Sentinel",
+      "D": "Azure DevTest Labs"
+    },
+    "CorrectOption": "A",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "AZ-900: Governança e custos"
+    ]
+  },
+  {
+    "Id": "S11",
+    "Stem": "Qual SKU de armazenamento fornece redundância entre regiões?",
+    "Options": {
+      "A": "LRS",
+      "B": "ZRS",
+      "C": "GRS",
+      "D": "Premium SSD"
+    },
+    "CorrectOption": "C",
+    "Difficulty": "hard",
+    "ObjectiveRefs": [
+      "AZ-900: Redundância do armazenamento"
+    ]
+  },
+  {
+    "Id": "S12",
+    "Stem": "A diferença principal entre CapEx e OpEx na nuvem é:",
+    "Options": {
+      "A": "CapEx é pago por uso",
+      "B": "OpEx exige investimento inicial",
+      "C": "CapEx é investimento inicial; OpEx é despesa operacional recorrente",
+      "D": "Não se aplicam à nuvem"
+    },
+    "CorrectOption": "C",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "AZ-900: Princípios de custo"
+    ]
+  }
+]
