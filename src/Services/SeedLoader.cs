@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text.Json;
 using MsFundamentals.Trainer.Infrastructure;
 using MsFundamentals.Trainer.Models;
@@ -39,46 +40,40 @@ public static class SeedLoader
                 .Distinct()
                 .ToArray();
 
-            var azCandidates = BuildCandidates("questions.az900.json");
-            var aiCandidates = BuildCandidates("questions.ai900.json");
-            _lastCandidates = new Dictionary<string, string[]>{
-                ["AZ-900"] = azCandidates,
-                ["AI-900"] = aiCandidates
+            var tracks = new[]{
+                new { Track = "AZ-900", File = "questions.az900.json" },
+                new { Track = "AI-900", File = "questions.ai900.json" },
+                new { Track = "DP-900", File = "questions.dp900.json" }
             };
 
-            logger.LogInformation("AZ-900 candidates: {Cnt}", azCandidates.Length);
-            logger.LogInformation("AI-900 candidates: {Cnt}", aiCandidates.Length);
+            _lastCandidates = tracks.ToDictionary(t => t.Track, t => BuildCandidates(t.File));
 
-            string? azPath = azCandidates.FirstOrDefault(File.Exists);
-            string? aiPath = aiCandidates.FirstOrDefault(File.Exists);
-
-            if (azPath is not null)
+            foreach (var kv in _lastCandidates)
             {
-                var json = File.ReadAllText(azPath);
-                var qs = JsonSerializer.Deserialize<List<Question>>(json, opts) ?? new();
-                cache.Set("BANK::AZ-900::pt-BR", qs);
-                logger.LogInformation("Loaded AZ-900 seed from {Path}: {Count} questions.", azPath, qs.Count);
-            }
-            else
-            {
-                logger.LogWarning("AZ-900 seed file not found. Checked: {Candidates}", string.Join(";", azCandidates));
+                logger.LogInformation("{Track} candidates: {Cnt}", kv.Key, kv.Value.Length);
             }
 
-            if (aiPath is not null)
+            var loaded = 0;
+            foreach (var cfg in tracks)
             {
-                var json = File.ReadAllText(aiPath);
-                var qs = JsonSerializer.Deserialize<List<Question>>(json, opts) ?? new();
-                cache.Set("BANK::AI-900::pt-BR", qs);
-                logger.LogInformation("Loaded AI-900 seed from {Path}: {Count} questions.", aiPath, qs.Count);
-            }
-            else
-            {
-                logger.LogWarning("AI-900 seed file not found. Checked: {Candidates}", string.Join(";", aiCandidates));
+                var path = _lastCandidates[cfg.Track].FirstOrDefault(File.Exists);
+                if (path is null)
+                {
+                    logger.LogWarning("{Track} seed file not found. Checked: {Candidates}", cfg.Track, string.Join(";", _lastCandidates[cfg.Track]));
+                    continue;
+                }
+
+                var json = File.ReadAllText(path);
+                var raw = JsonSerializer.Deserialize<List<Question>>(json, opts) ?? new();
+                var sanitized = QuestionBankUtilities.Sanitize(cfg.Track, raw, logger);
+                cache.Set($"BANK::{cfg.Track}::pt-BR", sanitized);
+                logger.LogInformation("Loaded {Track} seed from {Path}: {Count} questions (após validação).", cfg.Track, path, sanitized.Count);
+                loaded++;
             }
 
-            if (azPath is null && aiPath is null)
+            if (loaded == 0)
             {
-                logger.LogError("Nenhum arquivo de seed encontrado para AZ-900 ou AI-900.");
+                logger.LogError("Nenhum arquivo de seed encontrado para AZ-900, AI-900 ou DP-900.");
             }
         }
         catch (Exception ex)

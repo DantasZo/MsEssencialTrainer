@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text.Json;
 using MsFundamentals.Trainer.Infrastructure;
 using MsFundamentals.Trainer.Models;
@@ -29,7 +30,10 @@ public sealed class ExamService
     public async Task<Exam> CreateExamAsync(string track, string lang, int count, Dictionary<string,int>? mix, HttpContext httpContext, CancellationToken ct = default)
     {
         // Load bank from cache (seeded by SeedLoader)
-        var bank = _cache.GetOrSet(BankKey(track, lang), () => new List<Question>());
+        var bank = QuestionBankUtilities.EnsureUniqueByStemAndObjective(
+            _cache.GetOrSet(BankKey(track, lang), () => new List<Question>()))
+            .ToList();
+        _cache.Set(BankKey(track, lang), bank);
 
         // Try sample from bank
         var selected = SampleBalanced(bank, count, mix);
@@ -53,6 +57,7 @@ public sealed class ExamService
                     if (q.Options.Count != 4 || !new HashSet<string>(q.Options.Keys).SetEquals(new[] {"A","B","C","D"})) continue;
                     bank.Add(q);
                 }
+                bank = QuestionBankUtilities.EnsureUniqueByStemAndObjective(bank);
                 selected = SampleBalanced(bank, count, mix);
                 _cache.Set(BankKey(track, lang), bank);
             }
