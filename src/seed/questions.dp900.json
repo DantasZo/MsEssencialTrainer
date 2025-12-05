@@ -1,0 +1,182 @@
+[
+  {
+    "Id": "S1",
+    "Stem": "Qual é a principal característica de um banco de dados relacional?",
+    "Options": {
+      "A": "Armazenar dados como pares chave-valor",
+      "B": "Organizar dados em tabelas com relações e integridade",
+      "C": "Processar somente dados não estruturados",
+      "D": "Depender de cache distribuído"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "DP-900: Conceitos de dados relacionais"
+    ]
+  },
+  {
+    "Id": "S2",
+    "Stem": "O que define uma chave primária em um banco relacional?",
+    "Options": {
+      "A": "Campo opcional para consultas analíticas",
+      "B": "Identificador exclusivo de cada linha na tabela",
+      "C": "Campo que permite valores duplicados",
+      "D": "Coluna reservada para índices de texto"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "DP-900: Modelagem e integridade"
+    ]
+  },
+  {
+    "Id": "S3",
+    "Stem": "Como a normalização ajuda no design de bancos relacionais?",
+    "Options": {
+      "A": "Aumenta a redundância para leitura rápida",
+      "B": "Remove redundâncias e minimiza anomalias de atualização",
+      "C": "Permite consultas sem índices",
+      "D": "Elimina a necessidade de chaves primárias"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "DP-900: Modelagem e integridade"
+    ]
+  },
+  {
+    "Id": "S4",
+    "Stem": "Qual serviço do Azure fornece um banco de dados relacional totalmente gerenciado (PaaS)?",
+    "Options": {
+      "A": "Azure SQL Database",
+      "B": "SQL Server em Azure VM",
+      "C": "Azure Cosmos DB for MongoDB",
+      "D": "Azure Cache for Redis"
+    },
+    "CorrectOption": "A",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "DP-900: Serviços de dados relacionais no Azure"
+    ]
+  },
+  {
+    "Id": "S5",
+    "Stem": "Quando faz mais sentido usar um banco NoSQL de documentos como o Azure Cosmos DB?",
+    "Options": {
+      "A": "Quando o esquema é rígido e raramente muda",
+      "B": "Quando é necessário baixa latência global e dados sem esquema fixo",
+      "C": "Para workloads exclusivamente transacionais com ACID estrito",
+      "D": "Para executar procedimentos T-SQL complexos"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "DP-900: Conceitos de dados não relacionais"
+    ]
+  },
+  {
+    "Id": "S6",
+    "Stem": "Qual afirmação descreve OLTP?",
+    "Options": {
+      "A": "Processa grandes volumes de consultas analíticas batch",
+      "B": "Focado em transações curtas e consistência de dados",
+      "C": "Sempre armazena dados em formato coluna",
+      "D": "Dispensa índices por usar memória"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "DP-900: Workloads de dados"
+    ]
+  },
+  {
+    "Id": "S7",
+    "Stem": "Qual serviço é recomendado para orquestrar pipelines de ingestão e transformação de dados no Azure?",
+    "Options": {
+      "A": "Azure Data Factory",
+      "B": "Azure Advisor",
+      "C": "Azure Monitor",
+      "D": "Azure DevTest Labs"
+    },
+    "CorrectOption": "A",
+    "Difficulty": "easy",
+    "ObjectiveRefs": [
+      "DP-900: Processamento de dados"
+    ]
+  },
+  {
+    "Id": "S8",
+    "Stem": "Qual diferença principal entre data warehouse e data lake?",
+    "Options": {
+      "A": "Data warehouse só armazena logs; data lake só imagens",
+      "B": "Data warehouse aplica schema-on-write; data lake aceita dados brutos com schema-on-read",
+      "C": "Data lake não suporta governança",
+      "D": "Data warehouse é sempre mais barato que data lake"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "DP-900: Armazenamento analítico"
+    ]
+  },
+  {
+    "Id": "S9",
+    "Stem": "Qual serviço do Azure processa eventos de streaming quase em tempo real usando consultas SQL?",
+    "Options": {
+      "A": "Azure Stream Analytics",
+      "B": "Azure Analysis Services",
+      "C": "Azure Logic Apps",
+      "D": "Azure Data Explorer dashboards"
+    },
+    "CorrectOption": "A",
+    "Difficulty": "hard",
+    "ObjectiveRefs": [
+      "DP-900: Processamento em tempo real"
+    ]
+  },
+  {
+    "Id": "S10",
+    "Stem": "Qual formato de arquivo é otimizado para análise em data lakes por armazenar colunas de forma compacta?",
+    "Options": {
+      "A": "CSV",
+      "B": "JSON",
+      "C": "Parquet",
+      "D": "TXT"
+    },
+    "CorrectOption": "C",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "DP-900: Armazenamento analítico"
+    ]
+  },
+  {
+    "Id": "S11",
+    "Stem": "Qual recurso do Azure Synapse Analytics permite executar consultas SQL sob dados armazenados no Data Lake sem mover arquivos?",
+    "Options": {
+      "A": "Dedicated SQL pool",
+      "B": "Serverless SQL pool",
+      "C": "Integration runtime",
+      "D": "Link connection"
+    },
+    "CorrectOption": "B",
+    "Difficulty": "hard",
+    "ObjectiveRefs": [
+      "DP-900: Serviços de analytics no Azure"
+    ]
+  },
+  {
+    "Id": "S12",
+    "Stem": "Qual vantagem do particionamento em tabelas grandes?",
+    "Options": {
+      "A": "Aumenta a duplicação de dados para consultas",
+      "B": "Reduz a necessidade de índices",
+      "C": "Melhora desempenho ao dividir dados em segmentos gerenciáveis",
+      "D": "Permite ignorar backups"
+    },
+    "CorrectOption": "C",
+    "Difficulty": "medium",
+    "ObjectiveRefs": [
+      "DP-900: Otimização e desempenho"
+    ]
+  }
+]
