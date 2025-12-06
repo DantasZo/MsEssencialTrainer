@@ -213,6 +213,8 @@ Descrição de cada campo:
 - AzureOpenAI:ApiVersion (string): Versão da API usada (ex.: `2024-08-01-preview`). Use uma versão suportada pelo modelo.
 - AzureOpenAI:ApiKey (string): Chave de acesso do recurso Azure OpenAI (NUNCA commitar). Obtenha em: Azure Portal → Recurso OpenAI → Keys & Endpoint.
 
+> Otimização de tokens: quando `AzureOpenAI:UseAzure` é verdadeiro, as chamadas do gerador usam um formato compacto "toon" (chaves curtas em `response_format` json_schema). Isso reduz o custo de tokens de saída no Azure e o retorno é normalizado internamente para o modelo de questões.
+
 ### Como configurar localmente (User Secrets)
 No diretório do projeto (onde está o `.csproj`):
 ```bash
