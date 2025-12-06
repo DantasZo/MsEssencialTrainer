@@ -82,7 +82,7 @@ public sealed class Gpt5Client
         {
             payload = new
             {
-                response_format = new { type = "json_object" },
+                response_format = ToonCodec.AzureQuestionSchema,
                 messages = new object[]
                 {
                     new { role = "system", content = systemPrompt },
@@ -119,7 +119,7 @@ public sealed class Gpt5Client
             {
                 payload = new
                 {
-                    response_format = new { type = "json_object" },
+                    response_format = ToonCodec.AzureQuestionSchema,
                     messages = new object[]
                     {
                         new { role = "system", content = systemPrompt },
@@ -168,6 +168,12 @@ public sealed class Gpt5Client
 
         using var doc = JsonDocument.Parse(body);
         var content = doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() ?? "{}";
+
+        if (_useAzure)
+        {
+            // Azure: converter formato toon (chaves curtas) para JSON padrão esperado pelos serviços.
+            content = ToonCodec.NormalizeQuestions(content);
+        }
 
         // usage tokens (Azure/OpenAI compatible)
         int inTok = 0, outTok = 0;

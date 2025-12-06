@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using FluentValidation;
@@ -149,7 +150,9 @@ app.MapGet("/ai/ping", async (Gpt5Client client, HttpContext ctx, CancellationTo
 // Seed status
 app.MapGet("/seed/status", () =>
 {
-    var tracks = new[]{"AZ-900","AI-900"};
+    var tracks = SeedLoader.LastCandidates.Keys.Any()
+        ? SeedLoader.LastCandidates.Keys
+        : new[]{"AZ-900","AI-900","DP-900"};
     var lang = "pt-BR";
     var data = new List<object>();
     foreach (var t in tracks)
