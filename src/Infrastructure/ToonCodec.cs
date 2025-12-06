@@ -6,13 +6,13 @@ namespace MsFundamentals.Trainer.Infrastructure;
 
 /// <summary>
 /// Utilidades para trabalhar com o formato "toon" (chaves curtas) usado em chamadas Azure OpenAI,
-/// reduzindo tokens ao forçar respostas compactas e convertendo-as para o modelo interno de questões.
+/// reduzindo tokens ao forcar respostas compactas e convertendo-as para o modelo interno de questoes.
 /// </summary>
 public static class ToonCodec
 {
     /// <summary>
-    /// Esquema JSON (json_schema) com chaves curtas para solicitar questões via Azure OpenAI.
-    /// Mantém os campos essenciais, mas com identificadores compactos: s (stem), o (options),
+    /// Esquema JSON (json_schema) com chaves curtas para solicitar questoes via Azure OpenAI.
+    /// Mantem os campos essenciais, mas com identificadores compactos: s (stem), o (options),
     /// c (correct), d (difficulty) e r (refs).
     /// </summary>
     public static object AzureQuestionSchema => new
@@ -30,7 +30,7 @@ public static class ToonCodec
                     type = "object",
                     properties = new
                     {
-                        s = new { type = "string", description = "Enunciado da questão" },
+                        s = new { type = "string", description = "Enunciado da questao" },
                         o = new
                         {
                             type = "object",
@@ -43,8 +43,8 @@ public static class ToonCodec
                             },
                             required = new[] { "a", "b", "c", "d" }
                         },
-                        c = new { type = "string", enum = new[] { "A", "B", "C", "D" } },
-                        d = new { type = "string", enum = new[] { "easy", "medium", "hard" } },
+                        c = new { type = "string", @enum = new[] { "A", "B", "C", "D" } },
+                        d = new { type = "string", @enum = new[] { "easy", "medium", "hard" } },
                         r = new
                         {
                             type = "array",
@@ -60,7 +60,7 @@ public static class ToonCodec
 
     /// <summary>
     /// Converte um JSON em formato "toon" (chaves curtas) para a estrutura completa de <see cref="Question"/>.
-    /// Se o conteúdo não estiver no formato esperado, devolve o JSON original.
+    /// Se o conteudo nao estiver no formato esperado, devolve o JSON original.
     /// </summary>
     public static string NormalizeQuestions(string? toonJson)
     {
@@ -72,6 +72,7 @@ public static class ToonCodec
             if (doc.RootElement.ValueKind != JsonValueKind.Array) return toonJson;
 
             var questions = new List<Question>();
+            var idx = 1;
             foreach (var item in doc.RootElement.EnumerateArray())
             {
                 if (item.ValueKind != JsonValueKind.Object) continue;
@@ -102,6 +103,7 @@ public static class ToonCodec
 
                 questions.Add(new Question
                 {
+                    Id = $"LLM_Q{idx++}",
                     Stem = stemEl.GetString() ?? string.Empty,
                     Options = options,
                     CorrectOption = correctEl.GetString() ?? string.Empty,

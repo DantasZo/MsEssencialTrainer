@@ -3,7 +3,6 @@ using System.Text.Json;
 using MsFundamentals.Trainer.Infrastructure;
 using MsFundamentals.Trainer.Models;
 using MsFundamentals.Trainer.Repositories;
-using MsFundamentals.Trainer.Services; // ensure namespace for CacheService if needed
 
 namespace MsFundamentals.Trainer.Services;
 
@@ -27,13 +26,14 @@ public sealed class ExamService
 
     private static string BankKey(string track, string lang) => $"BANK::{track}::{lang}";
 
-    public async Task<Exam> CreateExamAsync(string track, string lang, int count, Dictionary<string,int>? mix, HttpContext httpContext, CancellationToken ct = default)
+    public async Task<Exam> CreateExamAsync(string track, string lang, int count, Dictionary<string, int>? mix, HttpContext httpContext, CancellationToken ct = default)
     {
-        // Load bank from cache (seeded by SeedLoader)
-        var bank = QuestionBankUtilities.EnsureUniqueByStemAndObjective(
-            _cache.GetOrSet(BankKey(track, lang), () => new List<Question>()))
+        // Load bank from cache (seeded by SeedLoader) using a local copy to avoid concurrent mutation
+        var cached = _cache.GetOrSet(BankKey(track, lang), () => new List<Question>());
+        var bank = QuestionBankUtilities
+            .EnsureUniqueByStemAndObjective(cached)
+            .Select(CloneQuestion)
             .ToList();
-        _cache.Set(BankKey(track, lang), bank);
 
         // Try sample from bank
         var selected = SampleBalanced(bank, count, mix);
@@ -47,44 +47,44 @@ public sealed class ExamService
 
             try
             {
-                var (content, tokIn, tokOut) = await _gpt.ChatJsonAsync(sys, user, ct: ct);
+                var (content, tokIn, tokOut) = await _gpt.ChatJsonAsync(sys, user, Gpt5Client.ResponseFormat.QuestionsToon, ct: ct);
                 httpContext.Items["AI_tokens_in"] = (int)(httpContext.Items.TryGetValue("AI_tokens_in", out var tin) ? Convert.ToInt32(tin) : 0) + tokIn;
                 httpContext.Items["AI_tokens_out"] = (int)(httpContext.Items.TryGetValue("AI_tokens_out", out var tout) ? Convert.ToInt32(tout) : 0) + tokOut;
 
-                var newQs = JsonSerializer.Deserialize<List<Question>>(content, new JsonSerializerOptions{ PropertyNameCaseInsensitive = true }) ?? new();
+                var newQs = JsonSerializer.Deserialize<List<Question>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
                 foreach (var q in newQs)
                 {
-                    if (q.Options.Count != 4 || !new HashSet<string>(q.Options.Keys).SetEquals(new[] {"A","B","C","D"})) continue;
+                    if (q.Options.Count != 4 || !new HashSet<string>(q.Options.Keys).SetEquals(new[] { "A", "B", "C", "D" })) continue;
                     bank.Add(q);
                 }
                 bank = QuestionBankUtilities.EnsureUniqueByStemAndObjective(bank);
                 selected = SampleBalanced(bank, count, mix);
-                _cache.Set(BankKey(track, lang), bank);
+                _cache.Set(BankKey(track, lang), bank.Select(CloneQuestion).ToList());
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Falha ao gerar questões via LLM; usando fallback seed.");
-                // Fallback: repetir questões existentes para preencher (apenas se houver no banco)
+                _logger.LogWarning(ex, "Falha ao gerar questoes via LLM; usando fallback seed.");
+                // Fallback: repetir questoes existentes para preencher (apenas se houver no banco)
                 while (selected.Count < count && bank.Count > 0)
                 {
-                    // Seleciona uma questão pseudo-aleatória
+                    // Seleciona questao pseudo-aleatoria
                     var next = bank[selected.Count % bank.Count];
                     selected.Add(next);
                 }
-                // Se ainda assim não houver perguntas suficientes, adicionar um placeholder
+                // Se ainda assim nao houver perguntas suficientes, adicionar um placeholder
                 if (selected.Count == 0)
                 {
-                    _logger.LogWarning("Nenhuma questão disponível após tentar gerar com IA. Adicionando questão placeholder.");
+                    _logger.LogWarning("Nenhuma questao disponivel apos tentar gerar com IA. Adicionando questao placeholder.");
                     selected.Add(new Question
                     {
                         Id = "Q1",
-                        Stem = "Placeholder: nenhuma questão disponível (verifique seeds ou configuração da IA).",
+                        Stem = "Placeholder: nenhuma questao disponivel (verifique seeds ou configuracao da IA).",
                         Options = new Dictionary<string, string>
                         {
-                            { "A", "Opção A" },
-                            { "B", "Opção B" },
-                            { "C", "Opção C" },
-                            { "D", "Opção D" }
+                            { "A", "Opcao A" },
+                            { "B", "Opcao B" },
+                            { "C", "Opcao C" },
+                            { "D", "Opcao D" }
                         },
                         CorrectOption = "A",
                         Difficulty = "easy",
@@ -97,8 +97,9 @@ public sealed class ExamService
         // Assign sequential IDs
         for (int i = 0; i < selected.Count; i++)
         {
-            selected[i] = new Question{
-                Id = $"Q{i+1}",
+            selected[i] = new Question
+            {
+                Id = $"Q{i + 1}",
                 Stem = selected[i].Stem,
                 Options = selected[i].Options,
                 CorrectOption = selected[i].CorrectOption,
@@ -107,7 +108,8 @@ public sealed class ExamService
             };
         }
 
-        var exam = new Exam{
+        var exam = new Exam
+        {
             Track = track,
             Language = lang,
             Questions = selected
@@ -116,10 +118,10 @@ public sealed class ExamService
         return exam;
     }
 
-    private List<Question> SampleBalanced(List<Question> bank, int count, Dictionary<string,int>? mix)
+    private List<Question> SampleBalanced(List<Question> bank, int count, Dictionary<string, int>? mix)
     {
         if (bank.Count == 0) return new List<Question>();
-        mix ??= new Dictionary<string,int>{{"easy",4},{"medium",4},{"hard",2}};
+        mix ??= new Dictionary<string, int> { { "easy", 4 }, { "medium", 4 }, { "hard", 2 } };
         var result = new List<Question>();
 
         foreach (var kv in mix)
@@ -135,4 +137,14 @@ public sealed class ExamService
         }
         return result.Take(count).ToList();
     }
+
+    private static Question CloneQuestion(Question q) => new Question
+    {
+        Id = q.Id,
+        Stem = q.Stem,
+        Options = new Dictionary<string, string>(q.Options),
+        CorrectOption = q.CorrectOption,
+        Difficulty = q.Difficulty,
+        ObjectiveRefs = new List<string>(q.ObjectiveRefs)
+    };
 }

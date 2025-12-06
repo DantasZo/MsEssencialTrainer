@@ -29,6 +29,7 @@ builder.Services.AddSingleton<Gpt5Client>();
 builder.Services.AddSingleton<AiPromptBuilder>();
 builder.Services.AddSingleton<FeedbackService>();
 builder.Services.AddSingleton<ExamService>();
+builder.Services.AddSingleton<TokenEstimator>();
 
 builder.Services.AddSingleton<IExamRepository, InMemoryExamRepository>();
 

@@ -1,7 +1,7 @@
 [
   {
     "Id": "AI900-Q1",
-    "Stem": "Qual serviço oferece APIs pré-treinadas para visão e linguagem?",
+    "Stem": "Qual serviï¿½o oferece APIs prï¿½-treinadas para visï¿½o e linguagem?",
     "Options": {
       "A": "Azure Cognitive Services",
       "B": "Azure Machine Learning",
@@ -10,13 +10,13 @@
     },
     "CorrectOption": "A",
     "Difficulty": "easy",
-    "ObjectiveRefs": ["AI-900: Serviços de IA"]
+    "ObjectiveRefs": ["AI-900: Serviï¿½os de IA"]
   },
   {
     "Id": "AI900-Q2",
     "Stem": "Aprendizado supervisionado usa dados...",
     "Options": {
-      "A": "Sem rótulos",
+      "A": "Sem rï¿½tulos",
       "B": "Rotulados",
       "C": "Gerados",
       "D": "Criptografados"
@@ -27,12 +27,12 @@
   },
   {
     "Id": "AI900-Q3",
-    "Stem": "Qual prática ajuda a evitar overfitting?",
+    "Stem": "Qual prï¿½tica ajuda a evitar overfitting?",
     "Options": {
       "A": "Adicionar mais features irrelevantes",
-      "B": "Usar validação cruzada",
+      "B": "Usar validaï¿½ï¿½o cruzada",
       "C": "Reduzir dados",
-      "D": "Ignorar regularização"
+      "D": "Ignorar regularizaï¿½ï¿½o"
     },
     "CorrectOption": "B",
     "Difficulty": "medium",

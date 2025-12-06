@@ -8,12 +8,18 @@ public sealed class FeedbackService
 {
     private readonly Gpt5Client _gpt;
     private readonly AiPromptBuilder _prompts;
+    private readonly TokenEstimator _tokenEstimator;
     private readonly ILogger<FeedbackService> _logger;
 
-    public FeedbackService(Gpt5Client gpt, AiPromptBuilder prompts, ILogger<FeedbackService> logger)
+    private const int AnalysisPromptBudgetTokens = 8000;
+    private const int LightMaxWrong = 6;
+    private const int DeepMaxWrong = 10;
+
+    public FeedbackService(Gpt5Client gpt, AiPromptBuilder prompts, TokenEstimator tokenEstimator, ILogger<FeedbackService> logger)
     {
         _gpt = gpt;
         _prompts = prompts;
+        _tokenEstimator = tokenEstimator;
         _logger = logger;
     }
 
@@ -25,19 +31,32 @@ public sealed class FeedbackService
         HttpContext httpContext,
         CancellationToken ct = default)
     {
-        // Local correction first
         var qById = exam.Questions.ToDictionary(q => q.Id);
+        var answersById = submission.Answers.ToDictionary(a => a.QuestionId, a => a, StringComparer.OrdinalIgnoreCase);
+
         var total = exam.Questions.Count;
         int correct = 0;
         var per = new List<PerQuestionAnalysis>();
 
-        foreach (var a in submission.Answers)
+        foreach (var q in exam.Questions)
         {
-            if (!qById.TryGetValue(a.QuestionId, out var q)) continue;
-            var ok = string.Equals(q.CorrectOption, a.Selected, StringComparison.OrdinalIgnoreCase);
+            if (!answersById.TryGetValue(q.Id, out var ans))
+            {
+                per.Add(new PerQuestionAnalysis
+                {
+                    QuestionId = q.Id,
+                    IsCorrect = false,
+                    Explanation = "Questao nao respondida.",
+                    ObjectiveRefs = q.ObjectiveRefs
+                });
+                continue;
+            }
+
+            var ok = string.Equals(q.CorrectOption, ans.Selected, StringComparison.OrdinalIgnoreCase);
             if (ok) correct++;
-            per.Add(new PerQuestionAnalysis{
-                QuestionId = a.QuestionId,
+            per.Add(new PerQuestionAnalysis
+            {
+                QuestionId = q.Id,
                 IsCorrect = ok,
                 Explanation = null,
                 ObjectiveRefs = q.ObjectiveRefs
@@ -46,63 +65,64 @@ public sealed class FeedbackService
 
         var score = (int)Math.Round(100.0 * correct / Math.Max(1, total));
 
-        // Economic mode: skip GPT only if high score AND user did not request deep
         if (analysisMode != "deep" && score >= 90)
         {
-            var light = new AnalysisResult{
+            var light = new AnalysisResult
+            {
                 Score = score,
-                PerQuestion = per.Select(p => new PerQuestionAnalysis{
+                PerQuestion = per.Select(p => new PerQuestionAnalysis
+                {
                     QuestionId = p.QuestionId,
                     IsCorrect = p.IsCorrect,
                     Explanation = p.IsCorrect ? "Resposta correta." : "Revise o conceito envolvido.",
                     ObjectiveRefs = p.ObjectiveRefs
                 }).ToList(),
-                Strengths = new List<string>{ "Excelente desempenho geral." },
+                Strengths = new List<string> { "Excelente desempenho geral." },
                 Gaps = new List<string>(),
                 StudyPlan = new List<StudyPlanItem>()
             };
             return (light, 0, 0);
         }
 
-        // Build wrong set
-        var wrong = per.Where(p => !p.IsCorrect).ToList();
+        var wrongBase = per.Where(p => !p.IsCorrect).ToList();
         if (analysisMode == "light")
-            wrong = wrong.Take(5).ToList(); // permitir mais que antes
+            wrongBase = wrongBase.Take(LightMaxWrong).ToList();
+        else
+            wrongBase = wrongBase.Take(DeepMaxWrong).ToList();
 
-        if (wrong.Count == 0)
+        if (wrongBase.Count == 0)
         {
-            var empty = new AnalysisResult{
+            var empty = new AnalysisResult
+            {
                 Score = score,
-                PerQuestion = per.Select(p => new PerQuestionAnalysis{
+                PerQuestion = per.Select(p => new PerQuestionAnalysis
+                {
                     QuestionId = p.QuestionId,
                     IsCorrect = p.IsCorrect,
                     Explanation = "Resposta correta.",
                     ObjectiveRefs = p.ObjectiveRefs
                 }).ToList(),
-                Strengths = new List<string>{ "Sem itens críticos a revisar." },
+                Strengths = new List<string> { "Sem itens criticos a revisar." },
                 Gaps = new List<string>(),
                 StudyPlan = new List<StudyPlanItem>()
             };
             return (empty, 0, 0);
         }
 
-        var wrongPairs = wrong.Select(w => (w.QuestionId, submission.Answers.First(a => a.QuestionId == w.QuestionId).Selected)).ToArray();
-        var wrongQuestions = wrong.Select(w => qById[w.QuestionId]).ToArray();
+        var (wrongQuestions, wrongPairs, userPrompt) = BuildPromptWithinBudget(qById, wrongBase, answersById, language, analysisMode);
 
         var sys = _prompts.BuildAnalysisSystemPrompt(analysisMode);
-        var user = _prompts.BuildAnalysisUserPrompt(wrongQuestions, wrongPairs, language, analysisMode);
 
-        var (content, tokIn, tokOut) = await _gpt.ChatJsonAsync(sys, user, ct: ct);
+        var (content, tokIn, tokOut) = await _gpt.ChatJsonAsync(sys, userPrompt, Gpt5Client.ResponseFormat.JsonObject, ct: ct);
 
-        // Attach tokens to httpContext for Telemetry
         httpContext.Items["AI_tokens_in"] = (int)(httpContext.Items.TryGetValue("AI_tokens_in", out var tin) ? Convert.ToInt32(tin) : 0) + tokIn;
         httpContext.Items["AI_tokens_out"] = (int)(httpContext.Items.TryGetValue("AI_tokens_out", out var tout) ? Convert.ToInt32(tout) : 0) + tokOut;
 
-        // Parse response
         AnalysisResult? result = null;
         try
         {
-            result = JsonSerializer.Deserialize<AnalysisResult>(content, new JsonSerializerOptions{
+            result = JsonSerializer.Deserialize<AnalysisResult>(content, new JsonSerializerOptions
+            {
                 PropertyNameCaseInsensitive = true
             });
         }
@@ -113,30 +133,32 @@ public sealed class FeedbackService
 
         if (result is null)
         {
-            // Fallback enriquecido
-            result = new AnalysisResult{
+            result = new AnalysisResult
+            {
                 Score = score,
-                PerQuestion = per.Select(p => new PerQuestionAnalysis{
+                PerQuestion = per.Select(p => new PerQuestionAnalysis
+                {
                     QuestionId = p.QuestionId,
                     IsCorrect = p.IsCorrect,
-                    Explanation = p.IsCorrect ? "Resposta correta." : "Sua resposta está incorreta; revise atentamente o objetivo associado e compare cada alternativa.",
+                    Explanation = p.IsCorrect ? "Resposta correta." : "Sua resposta esta incorreta; revise atentamente o objetivo associado e compare cada alternativa.",
                     ObjectiveRefs = p.ObjectiveRefs
                 }).ToList(),
-                Strengths = correct >= total/2 ? new List<string>{ "Conhecimento básico estabelecido." } : new List<string>(),
-                Gaps = wrong.Select(w => string.Join("; ", qById[w.QuestionId].ObjectiveRefs)).Distinct().ToList(),
-                StudyPlan = wrong
-                    .Select(w => new StudyPlanItem{
+                Strengths = correct >= total / 2 ? new List<string> { "Conhecimento basico estabelecido." } : new List<string>(),
+                Gaps = wrongBase.Select(w => string.Join("; ", qById[w.QuestionId].ObjectiveRefs)).Distinct().ToList(),
+                StudyPlan = wrongBase
+                    .Select(w => new StudyPlanItem
+                    {
                         Topic = string.Join("; ", qById[w.QuestionId].ObjectiveRefs),
-                        Why = $"Erro na questão {w.QuestionId}",
-                        Resources = new List<ResourceLink>{
-                            new ResourceLink{ Title = "Microsoft Learn", Url = "https://learn.microsoft.com/pt-br/training/" }
+                        Why = $"Erro na questao {w.QuestionId}",
+                        Resources = new List<ResourceLink>
+                        {
+                            new ResourceLink { Title = "Microsoft Learn", Url = "https://learn.microsoft.com/pt-br/training/" }
                         }
                     }).ToList()
             };
         }
         else
         {
-            // Sincroniza flags e garante explicações
             var perMap = per.ToDictionary(x => x.QuestionId);
             foreach (var item in result.PerQuestion)
             {
@@ -146,9 +168,8 @@ public sealed class FeedbackService
                     item.ObjectiveRefs ??= baseline.ObjectiveRefs;
                     if (!item.IsCorrect && string.IsNullOrWhiteSpace(item.Explanation))
                     {
-                        // Inject minimal explanation if missing
                         var correctOpt = qById[item.QuestionId].CorrectOption;
-                        item.Explanation = $"Sua resposta estava incorreta. A alternativa correta é {correctOpt}. Revise: {string.Join(", ", baseline.ObjectiveRefs ?? new List<string>())}.";
+                        item.Explanation = $"Sua resposta estava incorreta. Correta: {correctOpt}. Revise: {string.Join(", ", baseline.ObjectiveRefs ?? new List<string>())}.";
                     }
                     if (item.IsCorrect && string.IsNullOrWhiteSpace(item.Explanation))
                     {
@@ -157,16 +178,16 @@ public sealed class FeedbackService
                 }
             }
 
-            // Garante que todas questões processadas apareçam (importante para deep)
             foreach (var p in per)
             {
                 if (result.PerQuestion.All(r => r.QuestionId != p.QuestionId))
                 {
                     var correctOpt = qById[p.QuestionId].CorrectOption;
-                    result.PerQuestion.Add(new PerQuestionAnalysis{
+                    result.PerQuestion.Add(new PerQuestionAnalysis
+                    {
                         QuestionId = p.QuestionId,
                         IsCorrect = p.IsCorrect,
-                        Explanation = p.IsCorrect ? "Correto." : $"Não informado pelo modelo. Correta: {correctOpt}. Revise objetivos: {string.Join(", ", p.ObjectiveRefs)}.",
+                        Explanation = p.IsCorrect ? "Correto." : $"Nao informado pelo modelo. Correta: {correctOpt}. Revise objetivos: {string.Join(", ", p.ObjectiveRefs ?? new List<string>())}.",
                         ObjectiveRefs = p.ObjectiveRefs
                     });
                 }
@@ -174,5 +195,40 @@ public sealed class FeedbackService
         }
 
         return (result, tokIn, tokOut);
+    }
+
+    private (Question[] wrongQuestions, (string questionId, string selected)[] wrongPairs, string prompt) BuildPromptWithinBudget(
+        Dictionary<string, Question> qById,
+        List<PerQuestionAnalysis> wrongBase,
+        Dictionary<string, SubmissionAnswer> answersById,
+        string language,
+        string analysisMode)
+    {
+        var wrongList = wrongBase.ToList();
+
+        Question[] wrongQuestions = Array.Empty<Question>();
+        (string questionId, string selected)[] wrongPairs = Array.Empty<(string, string)>();
+        string prompt = string.Empty;
+
+        void Rebuild()
+        {
+            wrongPairs = wrongList
+                .Select(w => answersById.TryGetValue(w.QuestionId, out var ans)
+                    ? (w.QuestionId, ans.Selected)
+                    : (w.QuestionId, string.Empty))
+                .ToArray();
+            wrongQuestions = wrongList.Select(w => qById[w.QuestionId]).ToArray();
+            prompt = _prompts.BuildAnalysisUserPrompt(wrongQuestions, wrongPairs, language, analysisMode);
+        }
+
+        Rebuild();
+
+        while (_tokenEstimator.EstimateTokens(prompt) + _tokenEstimator.EstimateTokens(_prompts.BuildAnalysisSystemPrompt(analysisMode)) > AnalysisPromptBudgetTokens && wrongList.Count > 1)
+        {
+            wrongList = wrongList.Take(wrongList.Count - 1).ToList();
+            Rebuild();
+        }
+
+        return (wrongQuestions, wrongPairs, prompt);
     }
 }
